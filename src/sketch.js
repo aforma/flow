@@ -1,4 +1,5 @@
 var perlin = require("@giuliandrimba/noise")
+var config = require("../config.json")
 
 var ctx = undefined;
 var env = undefined;
@@ -14,15 +15,16 @@ exports.setup = function(_ctx, _env){
   ctx = _ctx;
   env = _env;
 
-  cols = Math.round(ctx.canvas.width / scale);
-  rows = Math.round(ctx.canvas.height / scale);
+  scale = Math.ceil(25 * (ctx.canvas.width / config.thumbnail_size));
 
-  console.log(ctx.canvas.width / scale)
+  cols = Math.ceil(ctx.canvas.width / scale);
+  rows = Math.ceil(ctx.canvas.height / scale);
 
   env.loadImage("/goya.colossus.jpg", function(img){
   	image = img;
   	background("#fff");
   	setupFieldFromImage();
+  	env.done()
   })
 
   // setupField();
@@ -42,7 +44,9 @@ function setupFieldFromImage() {
 		var yoff = 0;
 		for(var y = 0; y < rows; y++) {
 			// var r = Math.floor(perlin(xoff, yoff) * 255);
-			var c = getPixelXY(imgd, x * scale, y * scale)
+			var _x = (x * scale) > 0 ? x * scale : Math.round(scale / 2);
+			var _y = (y * scale) > 0 ? y * scale : Math.round(scale / 2);
+			var c = getPixelXY(imgd, _x, _y)
 			ctx.beginPath();
 			ctx.rect(x * scale, y * scale, scale, scale);
 			ctx.fillStyle = "rgb("+c[0]+","+c[1]+","+c[2]+")";

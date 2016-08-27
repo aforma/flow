@@ -36,7 +36,7 @@ module.exports = function(engine){
   env.Image = Image;
 
   env.loadImage = function(src, cb){
-    fs.readFile(__dirname + src, function(err, squid){
+    fs.readFile(__dirname + "/../../public" +src, function(err, squid){
       if (err) throw err;
       img = new Image;
       img.src = squid;
