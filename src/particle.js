@@ -20,26 +20,29 @@ Particle.prototype.follow = function(vectors, scale, rows){
 	var index = x + y * rows;
 	if(vectors[index]) {
 		var force = vectors[index].v
-		this.color = vectors[index].color;
 		this.applyForce(force);
 	}
 }
 
 Particle.prototype.applyForce = function(force){
-	// force.mult(0.1);
+	// force.mult(1);1
 	this.acc.add(force);
 	this.vel.add(this.acc);
 	this.acc.mult(0);
 	this.vel.limit(1);
 	this.position.add(this.vel);
+
 	if(this.position.x > this.ctx.canvas.width || this.position.y > this.ctx.canvas.height || this.position.x < 0 || this.position.y < 0) {
 		this.position.mult(-1)
 	}
 }
 
-Particle.prototype.draw = function(ctx){
-
-  ctx.fillStyle = "rgb("+this.color[0]+","+this.color[1]+","+this.color[2]+")";
+Particle.prototype.draw = function(ctx, colors){
+	var c = Math.floor((colors[0] + colors[1] + colors[2]) / 3) * 0.1
+	// if(c > 255) {
+	// 	c = 240;
+	// }
+  ctx.fillStyle = "rgb("+c+","+c+","+c+")";
   ctx.beginPath()
   ctx.arc(this.position.x, this.position.y, this.radius, 0, 2 * Math.PI);
   ctx.fill();

@@ -16,34 +16,36 @@ imageCanvas = undefined;
 var particles = [];
 var numParticles = 500;
 var RADIUS = 30;
+var imgd;
 
 exports.setup = function(_ctx, _env){
   ctx = _ctx;
   env = _env;
 
-  numParticles = 10000 * (ctx.canvas.width / 1024);
-  RADIUS = 2 * (ctx.canvas.width / 1024);
+  numParticles = 2500 * Math.round((ctx.canvas.width / 1024)).toFixed(2);
+  RADIUS = 1
+  RADIUS = 2 * Math.round((ctx.canvas.width / 1024)).toFixed(2);
+	increment = 0.1;
 
-  scale = Math.ceil(25 * (ctx.canvas.width / config.thumbnail_size));
-
+  scale = Math.ceil(10 * (ctx.canvas.width / 1024).toFixed(2));
   cols = Math.ceil(ctx.canvas.width / scale);
   rows = Math.ceil(ctx.canvas.height / scale);
 
-  env.loadImage("/goya.colossus.jpg", function(img){
+  env.loadImage("/luisa.jpg", function(img){
   	image = img;
   	background("#fff");
   	setupFieldFromImage();
   	addParticle();
-  	setTimeout(env.done, 10000)
+  	setTimeout(env.done, 60000)
   })
 }
 
 exports.draw = function() {
-	// background("rgba(255,255,255,0.01)")
 	if(particles.length) {
 		for(var i = 0; i < particles.length; i++) {
 			particles[i].follow(angles, scale, rows);
-			particles[i].draw(ctx)
+			var c = getPixelXY(imgd, Math.round(particles[i].position.x), Math.round(particles[i].position.y));
+			particles[i].draw(ctx, c)
 		}
 	}
 }
@@ -57,21 +59,22 @@ function addParticle() {
 function setupFieldFromImage() {
 	imageCanvas = env.createCanvas()
 	imageCanvas.drawImage(image, 0,0, image.width, image.height, 0, 0, ctx.canvas.width, ctx.canvas.height);
-	var imgd = imageCanvas.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
-	var pix = imgd.data;
-
+	imgd = imageCanvas.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+	var yoff = 0;
 	for(var y = 0; y < rows; y++) {
-
+		var xoff = 0;
 		for(var x = 0; x < cols; x++) {
-			var _x = (x * scale) > 0 ? (x * scale) + Math.round(scale / 2) : Math.round(scale / 2);
-			var _y = (y * scale) > 0 ? (y * scale) + Math.round(scale / 2) : Math.round(scale / 2);
-			var c = getPixelXY(imgd, _x, _y)
 			var index = x + y * cols;
-			var avg = Math.round((c[0] + c[1] + c[2]) / 3);
-			var v = new Vector(Math.cos(avg), Math.sin(avg))
-			angles[index] = {v:v, color:[c[0],c[1],c[2]]};
-
+			var angle = perlin(xoff, yoff) * (Math.PI * 2)
+			var c = getPixel(imgd, x * scale, y * scale);
+			var avg = ((c[0] + c[1] + c[2] + c[3]) / 4) * 0.1
+			avg = avg * Math.PI / 180;
+			// angle += avg;
+			var v = new Vector(Math.cos(angle), Math.sin(angle))
+			angles[index] = {v:v};
+			xoff += increment;
 		}
+		yoff += increment;
 	}
 }
 
