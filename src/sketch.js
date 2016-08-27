@@ -22,16 +22,16 @@ exports.setup = function(_ctx, _env){
   ctx = _ctx;
   env = _env;
 
-  numParticles = 2500 * Math.round((ctx.canvas.width / 1024)).toFixed(2);
+  numParticles = 5000 * Math.round((ctx.canvas.width / 1024)).toFixed(2);
   RADIUS = 1
-  RADIUS = 2 * Math.round((ctx.canvas.width / 1024)).toFixed(2);
+  // RADIUS = 1 * Math.round((ctx.canvas.width / 1024)).toFixed(2);
 	increment = 0.1;
 
   scale = Math.ceil(10 * (ctx.canvas.width / 1024).toFixed(2));
   cols = Math.ceil(ctx.canvas.width / scale);
   rows = Math.ceil(ctx.canvas.height / scale);
 
-  env.loadImage("/luisa.jpg", function(img){
+  env.loadImage("/goya.colossus.jpg", function(img){
   	image = img;
   	background("#fff");
   	setupFieldFromImage();
@@ -66,12 +66,9 @@ function setupFieldFromImage() {
 		for(var x = 0; x < cols; x++) {
 			var index = x + y * cols;
 			var angle = perlin(xoff, yoff) * (Math.PI * 2)
-			var c = getPixel(imgd, x * scale, y * scale);
-			var avg = ((c[0] + c[1] + c[2] + c[3]) / 4) * 0.1
-			avg = avg * Math.PI / 180;
-			// angle += avg;
+			var color = perlin(xoff, yoff) * 255;
 			var v = new Vector(Math.cos(angle), Math.sin(angle))
-			angles[index] = {v:v};
+			angles[index] = {v:v, color:color};
 			xoff += increment;
 		}
 		yoff += increment;

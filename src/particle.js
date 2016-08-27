@@ -1,11 +1,13 @@
 var Vector = require("./vector");
+var perlin = require("@giuliandrimba/noise")
 
 function Particle(x, y, radius, ctx) {
 	this.ctx = ctx;
   this.radius = radius
   this.acc = new Vector(0,0);
   this.vel = new Vector(0,0);
-  this.color = [0,0,0]
+  this.color = Math.random() * 255;
+  this.alpha = Math.random() * 255;
 
   this.position = new Vector(x, y)
 } 
@@ -19,6 +21,7 @@ Particle.prototype.follow = function(vectors, scale, rows){
 	var y = Math.floor(this.position.y / scale)
 	var index = x + y * rows;
 	if(vectors[index]) {
+		// this.color = Math.round(vectors[index].color);
 		var force = vectors[index].v
 		this.applyForce(force);
 	}
@@ -38,11 +41,12 @@ Particle.prototype.applyForce = function(force){
 }
 
 Particle.prototype.draw = function(ctx, colors){
-	var c = Math.floor((colors[0] + colors[1] + colors[2]) / 3) * 0.1
+	// var c = Math.floor((colors[0] + colors[1] + colors[2]) / 3) * 2
 	// if(c > 255) {
 	// 	c = 240;
 	// }
-  ctx.fillStyle = "rgb("+c+","+c+","+c+")";
+	this.alpha = Math.round(perlin(this.position.x * 0.001, this.position.y * 0.001) * 200);
+  ctx.fillStyle = "rgb("+this.alpha+","+this.alpha+","+this.alpha+")";
   ctx.beginPath()
   ctx.arc(this.position.x, this.position.y, this.radius, 0, 2 * Math.PI);
   ctx.fill();
