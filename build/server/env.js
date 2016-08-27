@@ -58,6 +58,12 @@ module.exports = function(engine){
     ctx = canvas.getContext('2d');
     return ctx;
   }
+
+  env.createCanvas = function(){
+    var canvas = new Canvas(parseInt(config.width), parseInt(config.height));
+    var ctx = canvas.getContext('2d');
+    return ctx;
+  }
   
   function updateReadme(){
     var readmeFile = path.resolve(__dirname, '..', '..', 'README.md');

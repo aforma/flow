@@ -1,5 +1,7 @@
 var perlin = require("@giuliandrimba/noise")
 var config = require("../config.json")
+var Particle = require("./particle");
+var Vector = require("./vector");
 
 var ctx = undefined;
 var env = undefined;
@@ -8,12 +10,19 @@ var increment = 0.1;
 var scale = 20;
 var columns = 0;
 var rows = 0;
-var field = [];
+var angles = [];
 var image = undefined;
+imageCanvas = undefined;
+var particles = [];
+var numParticles = 500;
+var RADIUS = 30;
 
 exports.setup = function(_ctx, _env){
   ctx = _ctx;
   env = _env;
+
+  numParticles = 10000 * (ctx.canvas.width / 1024);
+  RADIUS = 2 * (ctx.canvas.width / 1024);
 
   scale = Math.ceil(25 * (ctx.canvas.width / config.thumbnail_size));
 
@@ -24,37 +33,45 @@ exports.setup = function(_ctx, _env){
   	image = img;
   	background("#fff");
   	setupFieldFromImage();
-  	env.done()
+  	addParticle();
+  	setTimeout(env.done, 10000)
   })
-
-  // setupField();
 }
 
 exports.draw = function() {
+	// background("rgba(255,255,255,0.01)")
+	if(particles.length) {
+		for(var i = 0; i < particles.length; i++) {
+			particles[i].follow(angles, scale, rows);
+			particles[i].draw(ctx)
+		}
+	}
+}
 
+function addParticle() {
+	for(var i = 0; i < numParticles; i++) {
+		particles[i] = new Particle(Math.random() * ctx.canvas.width, Math.random() * ctx.canvas.height, RADIUS, ctx)
+	}
 }
 
 function setupFieldFromImage() {
-	ctx.drawImage(image, 0,0, image.width, image.height, 0, 0, ctx.canvas.width, ctx.canvas.height);
-	var imgd = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+	imageCanvas = env.createCanvas()
+	imageCanvas.drawImage(image, 0,0, image.width, image.height, 0, 0, ctx.canvas.width, ctx.canvas.height);
+	var imgd = imageCanvas.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
 	var pix = imgd.data;
 
-	var  xoff = 0;
-	for(var x = 0; x < cols; x++) {
-		var yoff = 0;
-		for(var y = 0; y < rows; y++) {
-			// var r = Math.floor(perlin(xoff, yoff) * 255);
-			var _x = (x * scale) > 0 ? x * scale : Math.round(scale / 2);
-			var _y = (y * scale) > 0 ? y * scale : Math.round(scale / 2);
+	for(var y = 0; y < rows; y++) {
+
+		for(var x = 0; x < cols; x++) {
+			var _x = (x * scale) > 0 ? (x * scale) + Math.round(scale / 2) : Math.round(scale / 2);
+			var _y = (y * scale) > 0 ? (y * scale) + Math.round(scale / 2) : Math.round(scale / 2);
 			var c = getPixelXY(imgd, _x, _y)
-			ctx.beginPath();
-			ctx.rect(x * scale, y * scale, scale, scale);
-			ctx.fillStyle = "rgb("+c[0]+","+c[1]+","+c[2]+")";
-			ctx.fill();
-			yoff += increment;
+			var index = x + y * cols;
+			var avg = Math.round((c[0] + c[1] + c[2]) / 3);
+			var v = new Vector(Math.cos(avg), Math.sin(avg))
+			angles[index] = {v:v, color:[c[0],c[1],c[2]]};
 
 		}
-		xoff += increment;
 	}
 }
 
@@ -67,24 +84,6 @@ function getPixel(imgData, index) {
 
 function getPixelXY(imgData, x, y) {
   return getPixel(imgData, y*imgData.width+x);
-}
-
-function setupField() {
-	var  xoff = 0;
-	for(var x = 0; x < cols; x++) {
-		var yoff = 0;
-		for(var y = 0; y < rows; y++) {
-			var r = Math.floor(perlin(xoff, yoff) * 255);
-			// field[x][y] = 
-			ctx.beginPath();
-			ctx.rect(x * scale, y * scale, cols, rows);
-			ctx.fillStyle = "rgb("+r+","+r+","+r+")";
-			ctx.fill();
-			yoff += increment;
-
-		}
-		xoff += increment;
-	}
 }
 
 function background(color){
