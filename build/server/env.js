@@ -5,6 +5,8 @@ var moment = require("moment");
 var colors = require('colors');
 var Canvas = require('canvas');
 var crop = require("./crop");
+var Canvas = require('canvas');
+var Image = Canvas.Image;
 
 module.exports = function(engine){
   var env = {};
@@ -29,6 +31,17 @@ module.exports = function(engine){
     });
 
     console.log("– Artwork saved at ".green + artworkPath.toString().green)
+  }
+
+  env.Image = Image;
+
+  env.loadImage = function(src, cb){
+    fs.readFile(__dirname + src, function(err, squid){
+      if (err) throw err;
+      img = new Image;
+      img.src = squid;
+      cb(img);
+    });
   }
 
   env.done = function() {

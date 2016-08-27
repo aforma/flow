@@ -15,6 +15,16 @@ module.exports = function(engine) {
     env.save()
   }
 
+  env.Image = Image;
+
+  env.loadImage = function(src, cb){
+    var img = new Image;
+    img.onload = function(){
+      cb(img);
+    }
+    img.src = src;
+  }
+
   env.save = function(){
     var image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
     var a = document.createElement('a');
