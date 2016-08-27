@@ -1,4 +1,4 @@
-### Aquarela
+### Flow
 
 ![artwork](dist/thumbnail.jpg)
 

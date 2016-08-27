@@ -1,5 +1,5 @@
 {
-  "name": "@giuliandrimba/aquarela",
+  "name": "flow",
   "version": "0.1.0",
   "description": "Boilerplate for high-res generative artwork",
   "main": "public/app.js",
